@@ -112,7 +112,6 @@ function CanvasContent({ mapCode, isProf, studentName, myId }: { mapCode: string
       <Tldraw 
         persistenceKey={`mindmap-${mapCode}`}
         components={myCustomUI}
-        isReadonly={isLocked && !isProf}
         onMount={setEditor} // 5. NOUVEAU : On attrape le moteur Tldraw au chargement
       />
     </div>
