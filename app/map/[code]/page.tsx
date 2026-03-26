@@ -40,12 +40,13 @@ function CanvasContent({ mapCode, isProf, studentName, myId }: { mapCode: string
   // 2. ÉVÉNEMENTS : Envoyer et écouter des actions (Kick, Figer)
   const broadcast = useBroadcastEvent();
 
-  useEventListener(({ event }) => {
-    if (event.type === "KICK" && event.targetId === myId) {
+ useEventListener(({ event }) => {
+    // Le "?" vérifie que event existe avant de lire "type"
+    if (event?.type === "KICK" && event?.targetId === myId) {
       alert("La professeure vous a exclu de la session.");
       router.push('/');
     }
-    if (event.type === "LOCK") {
+    if (event?.type === "LOCK") {
       setIsLocked(event.isLocked);
     }
   });
