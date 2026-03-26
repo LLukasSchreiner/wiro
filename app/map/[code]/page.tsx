@@ -41,13 +41,16 @@ function CanvasContent({ mapCode, isProf, studentName, myId }: { mapCode: string
   const broadcast = useBroadcastEvent();
 
  useEventListener(({ event }) => {
-    // Le "?" vérifie que event existe avant de lire "type"
-    if (event?.type === "KICK" && event?.targetId === myId) {
+    // Le "as any" est notre passe-partout. Il dit à TypeScript d'arrêter de s'inquiéter.
+    const e = event as any;
+
+    if (e?.type === "KICK" && e?.targetId === myId) {
       alert("La professeure vous a exclu de la session.");
       router.push('/');
     }
-    if (event?.type === "LOCK") {
-      setIsLocked(event.isLocked);
+    
+    if (e?.type === "LOCK") {
+      setIsLocked(e?.isLocked);
     }
   });
 
