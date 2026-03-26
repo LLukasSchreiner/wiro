@@ -80,3 +80,37 @@ body {
   background-color: var(--background) !important;
   z-index: 100; /* Garde le canevas en dessous de notre UI */
 }
+
+/* --- ANIMATIONS BRUTALISTES --- */
+
+/* 1. Le fond quadrillé animé */
+.bg-animated-grid {
+  background-color: #f4f4f0;
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(0,0,0,0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0,0,0,0.08) 1px, transparent 1px);
+  animation: panGrid 15s linear infinite;
+}
+
+@keyframes panGrid {
+  0% { background-position: 0px 0px; }
+  100% { background-position: 40px 40px; }
+}
+
+/* 2. L'apparition en "Pop" des cartes */
+.animate-pop-in {
+  opacity: 0;
+  animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

@@ -19,16 +19,14 @@ import {
 function CanvasContent({ mapCode, isProf, studentName, myId }: { mapCode: string, isProf: boolean, studentName: string, myId: string }) {
   const router = useRouter();
   const [isLocked, setIsLocked] = useState(false);
-  
-  // 2. NOUVEAU : On crée un état pour stocker le moteur interne de Tldraw
   const [editor, setEditor] = useState<Editor | null>(null);
 
   const updateMyPresence = useUpdateMyPresence();
+  
   useEffect(() => {
     updateMyPresence({ id: myId, name: studentName, role: isProf ? 'prof' : 'student' });
   }, [updateMyPresence, myId, studentName, isProf]);
 
-  // 1. PRESENCE : Récupérer les élèves en ligne
   const others = useOthers();
   const students = others
     .filter(other => other.presence?.role === 'student')
@@ -37,25 +35,21 @@ function CanvasContent({ mapCode, isProf, studentName, myId }: { mapCode: string
       name: (other.presence?.name as string) || "Anonyme",
     }));
 
-  // 2. ÉVÉNEMENTS : Envoyer et écouter des actions (Kick, Figer)
   const broadcast = useBroadcastEvent();
 
- useEventListener(({ event }) => {
-    // Le "as any" est notre passe-partout. Il dit à TypeScript d'arrêter de s'inquiéter.
+  useEventListener(({ event }) => {
     const e = event as any;
+    if (!e) return;
 
-    if (e?.type === "KICK" && e?.targetId === myId) {
+    if (e.type === "KICK" && e.targetId === myId) {
       alert("La professeure vous a exclu de la session.");
       router.push('/');
     }
-    
-    if (e?.type === "LOCK") {
-      setIsLocked(e?.isLocked);
+    if (e.type === "LOCK") {
+      setIsLocked(Boolean(e.isLocked));
     }
   });
 
-  // 3. NOUVEAU : Le bloqueur de dessin !
-  // Dès que isLocked change, on ordonne au moteur de Tldraw de se bloquer ou se débloquer.
   useEffect(() => {
     if (editor) {
       editor.updateInstanceState({ isReadonly: isLocked && !isProf });
@@ -72,11 +66,19 @@ function CanvasContent({ mapCode, isProf, studentName, myId }: { mapCode: string
     broadcast({ type: "LOCK", isLocked: newState });
   };
 
-  // 4. L'INTERFACE TLDRAW : Injection de notre UI Brutaliste
-  const myCustomUI = useMemo(() => ({
-    InFrontOfTheCanvas: () => (
+  return (
+    <div style={{ position: 'fixed', inset: 0, overflow: 'hidden' }}>
+      
+      {/* 1. LE MOTEUR TLDRAW (Pur, sans composants injectés) */}
+      <Tldraw 
+        persistenceKey={`mindmap-${mapCode}`}
+        onMount={setEditor} 
+      />
+
+      {/* 2. NOTRE CALQUE D'INTERFACE (Superposé par-dessus) */}
       <div className="absolute inset-0 pointer-events-none z-[300]">
         
+        {/* Vue Élève */}
         {!isProf && (
           <div className="absolute top-4 left-1/2 -translate-x-1/2 pointer-events-auto">
              <div className={`border-4 border-black px-4 py-1 brutal-shadow font-bold text-sm transition-colors ${isLocked ? 'bg-red-500 text-white' : 'bg-white text-black'}`}>
@@ -85,6 +87,7 @@ function CanvasContent({ mapCode, isProf, studentName, myId }: { mapCode: string
           </div>
         )}
 
+        {/* Vue Prof */}
         {isProf && (
           <>
             <div className="absolute top-4 left-1/2 -translate-x-1/2 pointer-events-auto">
@@ -104,16 +107,7 @@ function CanvasContent({ mapCode, isProf, studentName, myId }: { mapCode: string
           </>
         )}
       </div>
-    )
-  }), [isProf, studentName, mapCode, isLocked, students]);
 
-  return (
-    <div style={{ position: 'fixed', inset: 0, overflow: 'hidden' }}>
-      <Tldraw 
-        persistenceKey={`mindmap-${mapCode}`}
-        components={myCustomUI}
-        onMount={setEditor} // 5. NOUVEAU : On attrape le moteur Tldraw au chargement
-      />
     </div>
   );
 }

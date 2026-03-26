@@ -16,7 +16,7 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-6">
+    <main className="min-h-screen flex flex-col items-center justify-center p-6 bg-animated-grid">
       {/* Header */}
       <header className="fixed top-0 left-0 w-full p-4 border-b-4 border-black bg-white flex justify-between items-center z-50">
         <div className="flex items-center gap-3">
